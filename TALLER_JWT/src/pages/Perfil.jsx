@@ -6,7 +6,6 @@ import { API_BASE_URL } from "../config/apiConfig";
 function Perfil() {
   const [datosPerfil, setDatosPerfil] = useState(null);
   const [error, setError] = useState("");
-
   const { token, logout } = useAuth();
 
   const navigate = useNavigate();
@@ -15,9 +14,7 @@ function Perfil() {
     const cargarPerfil = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/auth/perfil`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         if (!response.ok) {
@@ -25,7 +22,6 @@ function Perfil() {
         }
 
         const datos = await response.json();
-
         setDatosPerfil(datos);
       } catch (err) {
         setError(err.message);
@@ -39,34 +35,36 @@ function Perfil() {
     try {
       await fetch(`${API_BASE_URL}/auth/logout`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
     } catch (err) {
       console.log("Error de red al intentar revocar el token: " + err);
     }
 
     logout();
-
     navigate("/login");
   };
 
   return (
     <div>
-      <div>
-        <h2>Perfil de Usuario</h2>
-        <button onClick={manejarLogOut}>Cerrar Sesión</button>
+      <h2>Perfil de usuario</h2>
+
+      <div className="perfil-acciones">
+        <button className="btn" onClick={() => navigate("/gestion")}>
+          Gestionar películas
+        </button>
+        <button className="btn" onClick={manejarLogOut}>
+          Cerrar sesión
+        </button>
       </div>
 
-      {error && <p>{error}</p>}
+      {error && <p className="msg msg-error">{error}</p>}
 
       {datosPerfil && (
         <div>
-          <p>{datosPerfil.Mensaje}</p>
-          <p>{datosPerfil.Usuario}</p>
-          <p>{datosPerfil.rol_detectado}</p>
-          <p>{datosPerfil.status}</p>
+          <p>{datosPerfil.mensaje}</p>
+          <p>Usuario: {datosPerfil.username}</p>
+          <p>Rol: {datosPerfil.rol}</p>
         </div>
       )}
     </div>

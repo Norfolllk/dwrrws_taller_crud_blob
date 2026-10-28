@@ -11,18 +11,16 @@ import org.springframework.web.multipart.MultipartFile;
 import com.krakedev.jwt.entidades.Pelicula;
 import com.krakedev.jwt.repositories.PeliculaRepository;
 
-
 @RestController
-@RequestMapping("/auth/peliculas")
-@CrossOrigin(origins = "http://localhost:5174")
+@RequestMapping("/api/auth/peliculas") 
 public class PeliculaController {
+
     private final PeliculaRepository peliculaRepository;
 
     public PeliculaController(PeliculaRepository peliculaRepository) {
         this.peliculaRepository = peliculaRepository;
     }
 
-    
 
     @PostMapping("/registrar")
     public ResponseEntity<?> registrarPelicula(
@@ -41,25 +39,22 @@ public class PeliculaController {
             peliculaRepository.save(pelicula);
             return ResponseEntity.status(HttpStatus.CREATED).body("Película registrada con éxito");
             
-        } catch (IOException e) {
+        } 
+        catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al procesar el archivo: " + e.getMessage());
         }
     }
 
 
-    
     @GetMapping
     public ResponseEntity<List<Pelicula>> listarPeliculas() {
         List<Pelicula> lista = peliculaRepository.findAll();
-        
         for (Pelicula p : lista) {
             p.setFoto(null);
         }
-        
         return ResponseEntity.ok(lista);
     }
-
 
     
     @GetMapping("/{id}/foto")
@@ -67,30 +62,27 @@ public class PeliculaController {
         Pelicula pelicula = peliculaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Película no encontrada"));
 
-        String mimeType = pelicula.getMimeType();
         HttpHeaders headers = new HttpHeaders();
-        
-        headers.setContentType(MediaType.parseMediaType(mimeType));
+        headers.setContentType(MediaType.parseMediaType(pelicula.getMimeType()));
 
         return new ResponseEntity<>(pelicula.getFoto(), headers, HttpStatus.OK);
     }
 
-
     
-    @DeleteMapping("/auth/pelicula/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminarPelicula(@PathVariable Integer id) {
         if (peliculaRepository.existsById(id)) {
             peliculaRepository.deleteById(id);
             return ResponseEntity.ok("Película eliminada correctamente");
             
-        } else {
+        } 
+        else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El registro no existe");
         }
     }
 
-
     
-    @PutMapping("/auth/pelicula/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<?> editarPelicula(
             @PathVariable Integer id,
             @RequestParam(value = "file", required = false) MultipartFile file,
@@ -104,7 +96,6 @@ public class PeliculaController {
 
             peliculaExistente.setTitulo(titulo);
             peliculaExistente.setDirector(director);
-            
 
             if (file != null && !file.isEmpty()) {
                 peliculaExistente.setMimeType(file.getContentType());
@@ -114,7 +105,8 @@ public class PeliculaController {
             peliculaRepository.save(peliculaExistente);
             return ResponseEntity.ok("Película actualizada con éxito");
             
-        } catch (IOException e) {
+        } 
+        catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al actualizar la película: " + e.getMessage());
         }

@@ -23,10 +23,17 @@ import com.krakedev.jwt.utils.JwtUtil;
 public class AuthController {
 
     private final UsuarioService usuarioService;
+    private final TokenBlackListService tokenBlackListService;
 
-    public AuthController(UsuarioService usuarioService) {
+    public AuthController(UsuarioService usuarioService,
+                          TokenBlackListService tokenBlackListService) {
         this.usuarioService = usuarioService;
+        this.tokenBlackListService = tokenBlackListService;
     }
+    
+	public TokenBlackListService getTokenBlackListService() {
+		return tokenBlackListService;
+	}
 
     
     @PostMapping("/registrar")
@@ -158,5 +165,16 @@ public class AuthController {
                     .body("Error interno del servidor");
         }
     }
-}
+    
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(
+            @RequestHeader(value = "Authorization", required = false)
+            String authorization) {
 
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+            tokenBlackListService.invalidarToken(authorization.substring(7));
+        }
+
+        return ResponseEntity.ok(Map.of("mensaje", "Sesión cerrada"));
+    }
+}
