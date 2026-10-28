@@ -2,11 +2,10 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { API_BASE_URL } from "../config/apiConfig";
 
-function ListaPelicula({ peliculas, onRefresh }) {
+function ListaPelicula({ peliculas, onRefresh, onEditClick }) {
   const [photosUrl, setPhotosUrl] = useState({});
   const { token } = useAuth();
 
-  
   useEffect(() => {
     const urlsCreadas = [];
 
@@ -37,7 +36,7 @@ function ListaPelicula({ peliculas, onRefresh }) {
     };
   }, [peliculas, token]);
 
-
+  
   const manejarEliminar = async (id) => {
     if (!window.confirm("¿Seguro que deseas eliminar esta película?")) return;
 
@@ -79,6 +78,9 @@ function ListaPelicula({ peliculas, onRefresh }) {
               </div>
 
               <div className="card-actions">
+                <button className="btn-edit" onClick={() => onEditClick(pelicula)}>
+                  Editar
+                </button>
                 <button className="btn-delete" onClick={() => manejarEliminar(pelicula.id)}>
                   Eliminar
                 </button>

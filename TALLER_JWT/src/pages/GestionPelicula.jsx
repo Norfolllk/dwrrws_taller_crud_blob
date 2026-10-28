@@ -15,6 +15,12 @@ function GestionPelicula() {
   const [okMsg, setOkMsg] = useState("");
   const [listaPeliculas, setListaPeliculas] = useState([]);
 
+  const [peliculaEditando, setPeliculaEditando] = useState(null);
+  const [editTitulo, setEditTitulo] = useState("");
+  const [editDirector, setEditDirector] = useState("");
+  const [editArchivo, setEditArchivo] = useState(null);
+
+
   // GET: carga el listado (sin fotos)
   const cargarPeliculas = useCallback(async () => {
     try {
@@ -69,6 +75,46 @@ function GestionPelicula() {
     }
   };
 
+
+  // Abre el modal con los datos actuales precargados
+  const abrirEditar = (pelicula) => {
+    setPeliculaEditando(pelicula);
+    setEditTitulo(pelicula.titulo);
+    setEditDirector(pelicula.director);
+    setEditArchivo(null);
+  };
+
+
+  // PUT: envía los cambios; la foto solo va si el usuario eligió una nueva
+  const manejarUpdate = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append("titulo", editTitulo);
+    formData.append("director", editDirector);
+    if (editArchivo) {
+      formData.append("file", editArchivo);
+    }
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/auth/peliculas/${peliculaEditando.id}`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+
+      if (res.ok) {
+        alert("Película actualizada correctamente");
+        setPeliculaEditando(null);
+        cargarPeliculas();
+      } else {
+        alert("Ocurrió un error al actualizar");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   
   return (
     <div className="gestion">
@@ -98,7 +144,33 @@ function GestionPelicula() {
       {errorMsg && <p className="msg msg-error">{errorMsg}</p>}
       {okMsg && <p className="msg msg-ok">{okMsg}</p>}
 
-      <ListaPelicula peliculas={listaPeliculas} onRefresh={cargarPeliculas} />
+      <ListaPelicula peliculas={listaPeliculas} onRefresh={cargarPeliculas} onEditClick={abrirEditar} />
+
+      {peliculaEditando && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Modificar película</h3>
+            <form className="form-gestion" onSubmit={manejarUpdate}>
+              <div className="campo">
+                <label>Título</label>
+                <input type="text" value={editTitulo} onChange={(e) => setEditTitulo(e.target.value)} required />
+              </div>
+              <div className="campo">
+                <label>Director</label>
+                <input type="text" value={editDirector} onChange={(e) => setEditDirector(e.target.value)} required />
+              </div>
+              <div className="campo">
+                <label>Cambiar póster (opcional)</label>
+                <input type="file" accept="image/*" onChange={(e) => setEditArchivo(e.target.files[0])} />
+              </div>
+              <div className="modal-botones">
+                <button type="submit" className="btn-edit">Guardar cambios</button>
+                <button type="button" className="btn-delete" onClick={() => setPeliculaEditando(null)}>Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
