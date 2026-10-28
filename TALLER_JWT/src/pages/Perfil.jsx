@@ -61,10 +61,10 @@ function Perfil() {
       {error && <p className="msg msg-error">{error}</p>}
 
       {datosPerfil && (
-        <div>
+        <div className="perfil-datos">
           <p>{datosPerfil.mensaje}</p>
-          <p>Usuario: {datosPerfil.username}</p>
-          <p>Rol: {datosPerfil.rol}</p>
+          <p><strong>Usuario:</strong> {datosPerfil.username}</p>
+          <p><strong>Rol:</strong> {datosPerfil.rol}</p>
         </div>
       )}
     </div>
