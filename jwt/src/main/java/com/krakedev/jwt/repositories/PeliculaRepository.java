@@ -1,5 +1,8 @@
 package com.krakedev.jwt.repositories;
 
-public interface PeliculaRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+import com.krakedev.jwt.entidades.Pelicula;
 
+	public interface PeliculaRepository extends JpaRepository<Pelicula, Integer> {
+	
 }
